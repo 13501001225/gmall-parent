@@ -30,13 +30,13 @@ public class PublisherController {
         dauMap.put("value",dauTotal);
         list.add(dauMap);
 
-        // 新增用户
-//        int newMidTotal = publisherService.getNewMidTotal(date);
-//        Map newMidMap=new HashMap<String,Object>();
-//        newMidMap.put("id","new_mid");
-//        newMidMap.put("name","新增用户");
-//        newMidMap.put("value",newMidTotal);
-//        list.add(newMidMap);
+        Map orderAmountMap=new HashMap();
+        orderAmountMap.put("id","order_amount");
+        orderAmountMap.put("name","新增交易额");
+        Double orderAmount = publisherService.getOrderAmount(date);
+        orderAmountMap.put("value",orderAmount);
+        list.add(orderAmountMap);
+
 
         return JSON.toJSONString(list);
     }
@@ -45,29 +45,33 @@ public class PublisherController {
    @GetMapping("realtime-hours")
   public String realtimeHourDate(@RequestParam("id") String id,@RequestParam("date") String date){
 
+       String  yesterdayDateString="";
+       try {
+           Date dateToday = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+           Date dateYesterday = DateUtils.addDays(dateToday, -1);
+           yesterdayDateString=new SimpleDateFormat("yyyy-MM-dd").format(dateYesterday);
+
+       } catch (ParseException e) {
+           e.printStackTrace();
+       }
+
       if( "dau".equals(id)){
           Map dauHoursToday = publisherService.getDauHours(date);
           JSONObject jsonObject = new JSONObject();
           jsonObject.put("today",dauHoursToday);
-          String  yesterdayDateString="";
-          try {
-              Date dateToday = new SimpleDateFormat("yyyy-MM-dd").parse(date);
-              Date dateYesterday = DateUtils.addDays(dateToday, -1);
-              yesterdayDateString=new SimpleDateFormat("yyyy-MM-dd").format(dateYesterday);
-
-          } catch (ParseException e) {
-              e.printStackTrace();
-          }
           Map dauHoursYesterday = publisherService.getDauHours(yesterdayDateString);
           jsonObject.put("yesterday",dauHoursYesterday);
           return jsonObject.toJSONString();
+      } else if("order_amount".equals(id)){
+          Map hourMap=new HashMap();
+          Map orderHourTMap = publisherService.getOrderAmountHour(date);
+          Map orderHourYMap = publisherService.getOrderAmountHour(yesterdayDateString);
+          hourMap.put("yesterday",orderHourYMap);
+          hourMap.put("today",orderHourTMap);
+          return JSON.toJSONString(hourMap);
+
       }
 
-
-//      if( "new_order_totalamount".equals(id)){
-//          String newOrderTotalamountJson = publisherService.getNewOrderTotalAmountHours(date);
-//          return newOrderTotalamountJson;
-//      }
        return null;
   }
 

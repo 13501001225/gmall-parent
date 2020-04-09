@@ -18,7 +18,10 @@ import redis.clients.jedis.Jedis
 
 object DauApp {
   def main(args: Array[String]): Unit = {
-    val sparkConf: SparkConf = new SparkConf().setMaster("local[*]").setAppName("dau_app")
+    val sparkConf: SparkConf = new SparkConf()
+      .setMaster("local[*]")
+      .setAppName("dau_app")
+
     val ssc = new StreamingContext(sparkConf,Seconds(5))
     // 1 消费kafka
     val inputDstream: InputDStream[ConsumerRecord[String, String]] = MyKafkaUtil.getKafkaStream(GmallConstants.KAFKA_TOPIC_STARTUP,ssc)
